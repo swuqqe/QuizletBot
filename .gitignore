@@ -1,0 +1,17 @@
+# Build output
+bin/
+obj/
+
+# IDE files
+.vs/
+.vscode/
+*.user
+
+# macOS
+.DS_Store
+
+# Секретний токен бота — НЕ комітимо
+appsettings.json
+
+# Runtime-дані статистики користувачів — не код, не комітимо
+userdata.json
