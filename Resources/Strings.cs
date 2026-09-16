@@ -74,10 +74,10 @@ public static class Strings
     public static string AboutBody(Language l) => l == Language.UA
         ? "QuizletBot — тренажер українських фразеологізмів у форматі флеш-карток.\n\n" +
           "🛠 <b>Технології:</b> C#, .NET 8, Telegram.Bot\n\n" +
-          "👤 <b>Розробник:</b> @your_tag"
+          "👤 <b>Розробник:</b> @yfsja7777"
         : "QuizletBot — a flashcard trainer for Ukrainian idioms.\n\n" +
           "🛠 <b>Tech stack:</b> C#, .NET 8, Telegram.Bot\n\n" +
-          "👤 <b>Developer:</b> @your_tag";
+          "👤 <b>Developer:</b> @yfsja7777";
 
     // ---------- Greeting ----------
     public static string WelcomeText(Language l) => l == Language.UA
