@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using QuizletBot.Handlers;
+using QuizletBot.Models;
+using QuizletBot.Resources;
 using QuizletBot.Services;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -23,10 +25,13 @@ if (string.IsNullOrWhiteSpace(token) || token.Contains("YOUR_BOT_TOKEN"))
     return;
 }
 
-var repository = new PhraseologismRepository(Path.Combine(baseDir, "Data", "phraseologisms.json"));
+var repositories = Decks.All.ToDictionary(
+    deck => deck.Id,
+    deck => new PhraseologismRepository(Path.Combine(baseDir, "Data", deck.DataFile)));
+
 var sessions = new SessionManager();
 var userDataStore = new UserDataStore(Path.Combine(baseDir, "userdata.json"));
-var handler = new UpdateHandler(repository, sessions, userDataStore);
+var handler = new UpdateHandler(repositories, sessions, userDataStore);
 
 var botClient = new TelegramBotClient(token);
 using var cts = new CancellationTokenSource();
@@ -43,7 +48,11 @@ botClient.StartReceiving(
     cancellationToken: cts.Token);
 
 var me = await botClient.GetMeAsync(cts.Token);
-Console.WriteLine($"✅ Бот @{me.Username} запущено. Картотека: {repository.Count} фразеологізмів.");
+Console.WriteLine($"✅ Бот @{me.Username} запущено.");
+foreach (var deck in Decks.All)
+{
+    Console.WriteLine($"   {deck.Emoji} {deck.Name(Language.UA)}: {repositories[deck.Id].Count} карток");
+}
 Console.WriteLine("Натисніть Ctrl+C, щоб зупинити.");
 
 var exitEvent = new ManualResetEvent(false);

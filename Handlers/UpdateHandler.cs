@@ -15,16 +15,18 @@ namespace QuizletBot.Handlers;
 // and nothing ever ends up stuck with no way forward.
 public class UpdateHandler
 {
-    private readonly PhraseologismRepository _repository;
+    private readonly Dictionary<string, PhraseologismRepository> _repositories;
     private readonly SessionManager _sessions;
     private readonly UserDataStore _userData;
 
-    public UpdateHandler(PhraseologismRepository repository, SessionManager sessions, UserDataStore userData)
+    public UpdateHandler(Dictionary<string, PhraseologismRepository> repositories, SessionManager sessions, UserDataStore userData)
     {
-        _repository = repository;
+        _repositories = repositories;
         _sessions = sessions;
         _userData = userData;
     }
+
+    private PhraseologismRepository RepoFor(UserSession session) => _repositories[session.CurrentDeckId];
 
     public async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken ct)
     {
@@ -101,6 +103,10 @@ public class UpdateHandler
                 await HandleNavAsync(bot, chatId, messageId, action, user, session, ct);
                 break;
 
+            case "deck":
+                await HandleDeckAsync(bot, chatId, messageId, action, param, user, session, ct);
+                break;
+
             case "fc":
                 await HandleFlashcardsAsync(bot, chatId, messageId, action, param, user, session, ct);
                 break;
@@ -122,7 +128,7 @@ public class UpdateHandler
         var (text, keyboard) = action switch
         {
             "main" => UiRenderer.MainMenu(user.Language),
-            "flashcards" => EnterChooseCount(session, user.Language),
+            "flashcards" => EnterChooseDeck(session, user.Language),
             "stats" => UiRenderer.Stats(user.Language, user),
             "settings" => UiRenderer.Settings(user.Language),
             "about" => UiRenderer.About(user.Language),
@@ -132,10 +138,24 @@ public class UpdateHandler
         await EditAsync(bot, chatId, messageId, text, keyboard, ct);
     }
 
-    private (string text, InlineKeyboardMarkup keyboard) EnterChooseCount(UserSession session, Language lang)
+    private (string text, InlineKeyboardMarkup keyboard) EnterChooseDeck(UserSession session, Language lang)
     {
-        session.State = SessionState.ChoosingCount;
-        return UiRenderer.ChooseCount(lang);
+        session.State = SessionState.ChoosingDeck;
+        return UiRenderer.ChooseDeck(lang);
+    }
+
+    // ---------- deck:* - card set picker ----------
+    private async Task HandleDeckAsync(ITelegramBotClient bot, long chatId, int messageId, string action,
+        string param, UserData user, UserSession session, CancellationToken ct)
+    {
+        if (action == "choose" && _repositories.ContainsKey(param))
+        {
+            session.CurrentDeckId = param;
+            session.State = SessionState.ChoosingCount;
+        }
+
+        var (text, keyboard) = UiRenderer.ChooseCount(user.Language);
+        await EditAsync(bot, chatId, messageId, text, keyboard, ct);
     }
 
     // ---------- fc:* - flashcard session ----------
@@ -155,9 +175,10 @@ public class UpdateHandler
             case "flip":
             {
                 if (session.State != SessionState.Active) break; // stale callback, ignore it
-                var card = _repository.GetById(session.CurrentCardId);
+                var deck = Decks.Get(session.CurrentDeckId);
+                var card = RepoFor(session).GetById(session.CurrentCardId);
                 session.IsFlipped = true;
-                var (text, keyboard) = UiRenderer.CardBack(user.Language, card, session.SessionShown, session.SessionLimit);
+                var (text, keyboard) = UiRenderer.CardBack(user.Language, deck, card, session.SessionShown, session.SessionLimit);
                 await EditAsync(bot, chatId, messageId, text, keyboard, ct);
                 break;
             }
@@ -194,14 +215,15 @@ public class UpdateHandler
     private async Task ShowNextCardAsync(ITelegramBotClient bot, long chatId, int messageId,
         UserData user, UserSession session, CancellationToken ct)
     {
-        var card = _repository.GetRandom(session.ShownCardIds);
+        var deck = Decks.Get(session.CurrentDeckId);
+        var card = RepoFor(session).GetRandom(session.ShownCardIds);
         session.CurrentCardId = card.Id;
         session.ShownCardIds.Add(card.Id);
         session.SessionShown += 1;
         session.IsFlipped = false;
         session.State = SessionState.Active;
 
-        var (text, keyboard) = UiRenderer.CardFront(user.Language, card, session.SessionShown, session.SessionLimit);
+        var (text, keyboard) = UiRenderer.CardFront(user.Language, deck, card, session.SessionShown, session.SessionLimit);
         await EditAsync(bot, chatId, messageId, text, keyboard, ct);
     }
 

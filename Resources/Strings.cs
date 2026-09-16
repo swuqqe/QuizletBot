@@ -22,13 +22,15 @@ public static class Strings
     public static string BtnMainMenu(Language l) => l == Language.UA ? "🏠 Головне меню" : "🏠 Main Menu";
 
     // ---------- Card count picker ----------
+    public static string ChooseDeckTitle(Language l) => l == Language.UA
+        ? "🎴 <b>Картки</b>\n\nОберіть набір карток:"
+        : "🎴 <b>Flashcards</b>\n\nChoose a card set:";
+
     public static string ChooseCountTitle(Language l) => l == Language.UA
         ? "🎴 <b>Картки</b>\n\nСкільки карток хочете пройти цього разу?"
         : "🎴 <b>Flashcards</b>\n\nHow many cards would you like to review?";
 
     // ---------- Card front/back ----------
-    public static string CardFrontLabel(Language l) => l == Language.UA ? "📖 Фразеологізм:" : "📖 Phrase:";
-    public static string CardExplanationLabel(Language l) => l == Language.UA ? "💡 Пояснення:" : "💡 Explanation:";
     public static string BtnShowExplanation(Language l) => l == Language.UA ? "🔄 Показати пояснення" : "🔄 Show explanation";
     public static string BtnKnow(Language l) => l == Language.UA ? "➡️ Знаю" : "➡️ Know";
     public static string BtnDontKnow(Language l) => l == Language.UA ? "⬅️ Не знаю" : "⬅️ Don't know";
@@ -74,10 +76,10 @@ public static class Strings
     public static string AboutBody(Language l) => l == Language.UA
         ? "QuizletBot — тренажер українських фразеологізмів у форматі флеш-карток.\n\n" +
           "🛠 <b>Технології:</b> C#, .NET 8, Telegram.Bot\n\n" +
-          "👤 <b>Розробник:</b> @yfsja7777"
+          "👤 <b>Розробник:</b> @your_tag"
         : "QuizletBot — a flashcard trainer for Ukrainian idioms.\n\n" +
           "🛠 <b>Tech stack:</b> C#, .NET 8, Telegram.Bot\n\n" +
-          "👤 <b>Developer:</b> @yfsja7777";
+          "👤 <b>Developer:</b> @your_tag";
 
     // ---------- Greeting ----------
     public static string WelcomeText(Language l) => l == Language.UA

@@ -1,0 +1,930 @@
+[
+  {
+    "text": "агрономія",
+    "explanation": "агронОмія"
+  },
+  {
+    "text": "алфавіт",
+    "explanation": "алфАвІт"
+  },
+  {
+    "text": "аркушик",
+    "explanation": "Аркушик"
+  },
+  {
+    "text": "асиметрія",
+    "explanation": "асиметрІя"
+  },
+  {
+    "text": "багаторазовий",
+    "explanation": "багаторазОвий"
+  },
+  {
+    "text": "безпринципний",
+    "explanation": "безпринцИпний"
+  },
+  {
+    "text": "бешкет",
+    "explanation": "бЕшкет"
+  },
+  {
+    "text": "благовіст",
+    "explanation": "блАговіст"
+  },
+  {
+    "text": "близький",
+    "explanation": "близькИй"
+  },
+  {
+    "text": "болотистий",
+    "explanation": "болотИстий"
+  },
+  {
+    "text": "бородавка",
+    "explanation": "борОдавка"
+  },
+  {
+    "text": "босоніж",
+    "explanation": "босОніж"
+  },
+  {
+    "text": "боязнь",
+    "explanation": "боЯзнь"
+  },
+  {
+    "text": "бурштиновий",
+    "explanation": "бурштинОвий"
+  },
+  {
+    "text": "бюлетень",
+    "explanation": "бюлетЕнь"
+  },
+  {
+    "text": "ваги (у множині)",
+    "explanation": "вАги (у множині)"
+  },
+  {
+    "text": "вантажівка",
+    "explanation": "вантажІвка"
+  },
+  {
+    "text": "весняний",
+    "explanation": "веснЯнИй"
+  },
+  {
+    "text": "вигода (користь)",
+    "explanation": "вИгода (користь)"
+  },
+  {
+    "text": "вигода (зручність)",
+    "explanation": "вигОда (зручність)"
+  },
+  {
+    "text": "видання",
+    "explanation": "видАння"
+  },
+  {
+    "text": "визвольний",
+    "explanation": "визвОльний"
+  },
+  {
+    "text": "вимога",
+    "explanation": "вимОга"
+  },
+  {
+    "text": "випадок",
+    "explanation": "вИпадок"
+  },
+  {
+    "text": "виразний",
+    "explanation": "вирАзний"
+  },
+  {
+    "text": "висіти",
+    "explanation": "вИсіти"
+  },
+  {
+    "text": "витрата",
+    "explanation": "вИтрата"
+  },
+  {
+    "text": "вишиваний",
+    "explanation": "вишИваний"
+  },
+  {
+    "text": "відвезти",
+    "explanation": "відвезтИ"
+  },
+  {
+    "text": "відвести",
+    "explanation": "відвестИ"
+  },
+  {
+    "text": "відгомін",
+    "explanation": "вІдгомін"
+  },
+  {
+    "text": "віднести",
+    "explanation": "віднестИ"
+  },
+  {
+    "text": "відомість (список)",
+    "explanation": "вІдомість (список)"
+  },
+  {
+    "text": "відомість (повідомлення, дані, популярність)",
+    "explanation": "відОмість (повідомлення, дані, популярність)"
+  },
+  {
+    "text": "вірші",
+    "explanation": "вІрші"
+  },
+  {
+    "text": "віршовий",
+    "explanation": "віршовИй"
+  },
+  {
+    "text": "вітчим",
+    "explanation": "вітчИм"
+  },
+  {
+    "text": "гальмо, гальма",
+    "explanation": "гальмО, гАльма"
+  },
+  {
+    "text": "глядач",
+    "explanation": "глядАч"
+  },
+  {
+    "text": "горошина",
+    "explanation": "горошИна"
+  },
+  {
+    "text": "граблі",
+    "explanation": "граблІ"
+  },
+  {
+    "text": "гуртожиток",
+    "explanation": "гуртОжиток"
+  },
+  {
+    "text": "данина",
+    "explanation": "данИна"
+  },
+  {
+    "text": "дано",
+    "explanation": "дАно"
+  },
+  {
+    "text": "дециметр",
+    "explanation": "децимЕтр"
+  },
+  {
+    "text": "дещиця",
+    "explanation": "дЕщиця"
+  },
+  {
+    "text": "де-юре",
+    "explanation": "де-Юре"
+  },
+  {
+    "text": "джерело",
+    "explanation": "джерелО"
+  },
+  {
+    "text": "дивлячись",
+    "explanation": "дИвлячись"
+  },
+  {
+    "text": "дичавіти",
+    "explanation": "дичАвіти"
+  },
+  {
+    "text": "діалог",
+    "explanation": "діалОг"
+  },
+  {
+    "text": "добовий",
+    "explanation": "добовИй"
+  },
+  {
+    "text": "добуток",
+    "explanation": "добУток"
+  },
+  {
+    "text": "довезти",
+    "explanation": "довезтИ"
+  },
+  {
+    "text": "довести",
+    "explanation": "довестИ"
+  },
+  {
+    "text": "довідник",
+    "explanation": "довІдник"
+  },
+  {
+    "text": "догмат",
+    "explanation": "дОгмат"
+  },
+  {
+    "text": "донести",
+    "explanation": "донестИ"
+  },
+  {
+    "text": "донька",
+    "explanation": "дОнька"
+  },
+  {
+    "text": "дочка",
+    "explanation": "дочкА"
+  },
+  {
+    "text": "дрова",
+    "explanation": "дрОва"
+  },
+  {
+    "text": "експерт",
+    "explanation": "експЕрт"
+  },
+  {
+    "text": "єретик",
+    "explanation": "єретИк"
+  },
+  {
+    "text": "жалюзі",
+    "explanation": "жалюзІ"
+  },
+  {
+    "text": "завдання",
+    "explanation": "завдАння"
+  },
+  {
+    "text": "завезти",
+    "explanation": "завезтИ"
+  },
+  {
+    "text": "завести",
+    "explanation": "завестИ"
+  },
+  {
+    "text": "завжди",
+    "explanation": "зАвжди"
+  },
+  {
+    "text": "завчасу",
+    "explanation": "завчасУ"
+  },
+  {
+    "text": "загадка",
+    "explanation": "зАгадка"
+  },
+  {
+    "text": "заіржавілий",
+    "explanation": "заіржАвілий"
+  },
+  {
+    "text": "заіржавіти",
+    "explanation": "заіржАвіти"
+  },
+  {
+    "text": "закінчити",
+    "explanation": "закінчИти"
+  },
+  {
+    "text": "закладка (у книзі)",
+    "explanation": "зАкладка (у книзі)"
+  },
+  {
+    "text": "закрутка",
+    "explanation": "зАкрутка"
+  },
+  {
+    "text": "залишити",
+    "explanation": "залишИти"
+  },
+  {
+    "text": "заміжня",
+    "explanation": "замІжня"
+  },
+  {
+    "text": "занести",
+    "explanation": "занестИ"
+  },
+  {
+    "text": "запонка",
+    "explanation": "зАпонка"
+  },
+  {
+    "text": "заробіток",
+    "explanation": "заробІток"
+  },
+  {
+    "text": "заставка",
+    "explanation": "зАставка"
+  },
+  {
+    "text": "застібка",
+    "explanation": "зАстібка"
+  },
+  {
+    "text": "застопорити",
+    "explanation": "застОпорити"
+  },
+  {
+    "text": "звисока",
+    "explanation": "звИсока"
+  },
+  {
+    "text": "здалека",
+    "explanation": "здАлека"
+  },
+  {
+    "text": "зібрання",
+    "explanation": "зібрАння"
+  },
+  {
+    "text": "зобразити",
+    "explanation": "зобразИти"
+  },
+  {
+    "text": "зозла",
+    "explanation": "зОзла"
+  },
+  {
+    "text": "зрання",
+    "explanation": "зрАння"
+  },
+  {
+    "text": "зручний",
+    "explanation": "зрУчний"
+  },
+  {
+    "text": "зубожіння",
+    "explanation": "зубОжіння"
+  },
+  {
+    "text": "індустрія",
+    "explanation": "індУстрія"
+  },
+  {
+    "text": "камбала",
+    "explanation": "кАмбала"
+  },
+  {
+    "text": "каталог",
+    "explanation": "каталОг"
+  },
+  {
+    "text": "квартал",
+    "explanation": "квартАл"
+  },
+  {
+    "text": "кишка",
+    "explanation": "кИшка"
+  },
+  {
+    "text": "кілометр",
+    "explanation": "кіломЕтр"
+  },
+  {
+    "text": "кінчити",
+    "explanation": "кінчИти"
+  },
+  {
+    "text": "колесо",
+    "explanation": "кОлесо"
+  },
+  {
+    "text": "колія",
+    "explanation": "кОлія"
+  },
+  {
+    "text": "копчений (дієприкметник)",
+    "explanation": "кОпчений (дієприкметник)"
+  },
+  {
+    "text": "копчений (прикметник)",
+    "explanation": "копчЕний (прикметник)"
+  },
+  {
+    "text": "корисний",
+    "explanation": "корИсний"
+  },
+  {
+    "text": "косий",
+    "explanation": "кОсий"
+  },
+  {
+    "text": "котрий",
+    "explanation": "котрИй"
+  },
+  {
+    "text": "крицевий",
+    "explanation": "крицЕвий"
+  },
+  {
+    "text": "кроїти",
+    "explanation": "крОїти"
+  },
+  {
+    "text": "кропива",
+    "explanation": "кропивА"
+  },
+  {
+    "text": "кулінарія",
+    "explanation": "кулінАрія"
+  },
+  {
+    "text": "курятина",
+    "explanation": "кУрятина"
+  },
+  {
+    "text": "лате",
+    "explanation": "лАте"
+  },
+  {
+    "text": "листопад",
+    "explanation": "листопАд"
+  },
+  {
+    "text": "літопис",
+    "explanation": "літОпис"
+  },
+  {
+    "text": "люстро",
+    "explanation": "лЮстро"
+  },
+  {
+    "text": "мабуть",
+    "explanation": "мАбУть"
+  },
+  {
+    "text": "магістерський",
+    "explanation": "магістЕрський"
+  },
+  {
+    "text": "маркетинг",
+    "explanation": "мАркетинг"
+  },
+  {
+    "text": "мережа",
+    "explanation": "мерЕжа"
+  },
+  {
+    "text": "металургія",
+    "explanation": "металУргія"
+  },
+  {
+    "text": "міліметр",
+    "explanation": "мілімЕтр"
+  },
+  {
+    "text": "навчання",
+    "explanation": "навчАння"
+  },
+  {
+    "text": "нанести",
+    "explanation": "нанестИ"
+  },
+  {
+    "text": "напій",
+    "explanation": "напІй"
+  },
+  {
+    "text": "наскрізний",
+    "explanation": "нАскрізний"
+  },
+  {
+    "text": "начинка",
+    "explanation": "нАчинка"
+  },
+  {
+    "text": "ненавидіти",
+    "explanation": "ненАвидіти"
+  },
+  {
+    "text": "ненависний",
+    "explanation": "ненАвисний"
+  },
+  {
+    "text": "ненависть",
+    "explanation": "ненАвисть"
+  },
+  {
+    "text": "нести",
+    "explanation": "нестИ"
+  },
+  {
+    "text": "ніздря",
+    "explanation": "нІздря"
+  },
+  {
+    "text": "новий",
+    "explanation": "новИй"
+  },
+  {
+    "text": "обіцянка",
+    "explanation": "обіцЯнка"
+  },
+  {
+    "text": "обрання",
+    "explanation": "обрАння"
+  },
+  {
+    "text": "обруч (іменник)",
+    "explanation": "обрУч (іменник)"
+  },
+  {
+    "text": "одинадцять",
+    "explanation": "одинАдцять"
+  },
+  {
+    "text": "одноразовий",
+    "explanation": "одноразОвий"
+  },
+  {
+    "text": "ознака",
+    "explanation": "ознАка"
+  },
+  {
+    "text": "олень",
+    "explanation": "Олень"
+  },
+  {
+    "text": "оптовий",
+    "explanation": "оптОвий"
+  },
+  {
+    "text": "осетер",
+    "explanation": "осетЕр"
+  },
+  {
+    "text": "отаман",
+    "explanation": "отАман"
+  },
+  {
+    "text": "оцет",
+    "explanation": "Оцет"
+  },
+  {
+    "text": "павич",
+    "explanation": "павИч"
+  },
+  {
+    "text": "партер",
+    "explanation": "партЕр"
+  },
+  {
+    "text": "пекарський",
+    "explanation": "пЕкарський"
+  },
+  {
+    "text": "перевезти",
+    "explanation": "перевезтИ"
+  },
+  {
+    "text": "перевести",
+    "explanation": "перевестИ"
+  },
+  {
+    "text": "перекис",
+    "explanation": "перЕкис"
+  },
+  {
+    "text": "переляк",
+    "explanation": "перелЯк"
+  },
+  {
+    "text": "перенести",
+    "explanation": "перенестИ"
+  },
+  {
+    "text": "перепад",
+    "explanation": "перЕпад"
+  },
+  {
+    "text": "перепис",
+    "explanation": "перЕпис"
+  },
+  {
+    "text": "піала",
+    "explanation": "піалА"
+  },
+  {
+    "text": "підданий (дієприкметник)",
+    "explanation": "пІдданий (дієприкметник)"
+  },
+  {
+    "text": "підданий (іменник, істота)",
+    "explanation": "піддАний (іменник, істота)"
+  },
+  {
+    "text": "підлітковий",
+    "explanation": "пІдлітковий"
+  },
+  {
+    "text": "пізнання",
+    "explanation": "пізнАння"
+  },
+  {
+    "text": "пітний",
+    "explanation": "пітнИй"
+  },
+  {
+    "text": "піцерія",
+    "explanation": "піцЕрія"
+  },
+  {
+    "text": "подруга",
+    "explanation": "пОдруга"
+  },
+  {
+    "text": "позначка",
+    "explanation": "пОзначка"
+  },
+  {
+    "text": "помилка",
+    "explanation": "пОмИлка"
+  },
+  {
+    "text": "поміщик",
+    "explanation": "помІщик"
+  },
+  {
+    "text": "помовчати",
+    "explanation": "помОвчати"
+  },
+  {
+    "text": "поняття",
+    "explanation": "понЯття"
+  },
+  {
+    "text": "порядковий",
+    "explanation": "порядкОвий"
+  },
+  {
+    "text": "посередині",
+    "explanation": "посерЕдині"
+  },
+  {
+    "text": "привезти",
+    "explanation": "привезтИ"
+  },
+  {
+    "text": "привести",
+    "explanation": "привестИ"
+  },
+  {
+    "text": "приморозок",
+    "explanation": "прИморозок"
+  },
+  {
+    "text": "принести",
+    "explanation": "принестИ"
+  },
+  {
+    "text": "причіп",
+    "explanation": "прИчіп"
+  },
+  {
+    "text": "проділ",
+    "explanation": "прОділ"
+  },
+  {
+    "text": "проміжок",
+    "explanation": "промІжок"
+  },
+  {
+    "text": "псевдонім",
+    "explanation": "псевдонІм"
+  },
+  {
+    "text": "разом",
+    "explanation": "рАзом"
+  },
+  {
+    "text": "ремінь (пояс)",
+    "explanation": "рЕмінь (пояс)"
+  },
+  {
+    "text": "решето",
+    "explanation": "рЕшето"
+  },
+  {
+    "text": "ринковий",
+    "explanation": "рИнковий"
+  },
+  {
+    "text": "рівнина",
+    "explanation": "рівнИна"
+  },
+  {
+    "text": "роздрібний",
+    "explanation": "роздрібнИй"
+  },
+  {
+    "text": "розпірка",
+    "explanation": "рОзпірка"
+  },
+  {
+    "text": "рукопис",
+    "explanation": "рукОпис"
+  },
+  {
+    "text": "русло",
+    "explanation": "руслО"
+  },
+  {
+    "text": "сантиметр",
+    "explanation": "сантимЕтр"
+  },
+  {
+    "text": "свердло",
+    "explanation": "свЕрдло"
+  },
+  {
+    "text": "середина",
+    "explanation": "серЕдина"
+  },
+  {
+    "text": "сеча",
+    "explanation": "сЕча"
+  },
+  {
+    "text": "симетрія",
+    "explanation": "симетрІя"
+  },
+  {
+    "text": "сільськогосподарський",
+    "explanation": "сільськогосподАрський"
+  },
+  {
+    "text": "сімдесят",
+    "explanation": "сімдесЯт"
+  },
+  {
+    "text": "слина",
+    "explanation": "слИна"
+  },
+  {
+    "text": "соломинка",
+    "explanation": "соломИнка"
+  },
+  {
+    "text": "статуя",
+    "explanation": "стАтуя"
+  },
+  {
+    "text": "стовідсотковий",
+    "explanation": "стовідсОтковий"
+  },
+  {
+    "text": "стрибати",
+    "explanation": "стрибАти"
+  },
+  {
+    "text": "текстовий",
+    "explanation": "текстовИй"
+  },
+  {
+    "text": "течія",
+    "explanation": "течіЯ"
+  },
+  {
+    "text": "тигровий",
+    "explanation": "тИгровий"
+  },
+  {
+    "text": "тисовий",
+    "explanation": "тисОвий"
+  },
+  {
+    "text": "тім'яний",
+    "explanation": "тім'янИй"
+  },
+  {
+    "text": "травестія",
+    "explanation": "травестІя"
+  },
+  {
+    "text": "тризуб",
+    "explanation": "тризУб"
+  },
+  {
+    "text": "тулуб",
+    "explanation": "тУлуб"
+  },
+  {
+    "text": "український",
+    "explanation": "украЇнський"
+  },
+  {
+    "text": "уподобання",
+    "explanation": "уподОбання"
+  },
+  {
+    "text": "урочистий",
+    "explanation": "урочИстий"
+  },
+  {
+    "text": "усередині",
+    "explanation": "усерЕдині"
+  },
+  {
+    "text": "фартух",
+    "explanation": "фартУх"
+  },
+  {
+    "text": "фаховий",
+    "explanation": "фаховИй"
+  },
+  {
+    "text": "феномен",
+    "explanation": "фенОмен"
+  },
+  {
+    "text": "фольга",
+    "explanation": "фОльга"
+  },
+  {
+    "text": "форзац",
+    "explanation": "фОрзац"
+  },
+  {
+    "text": "хаос (у міфології: стихія)",
+    "explanation": "хАос (у міфології: стихія)"
+  },
+  {
+    "text": "хаос (безлад)",
+    "explanation": "хаОс (безлад)"
+  },
+  {
+    "text": "царина",
+    "explanation": "цАрина"
+  },
+  {
+    "text": "цемент",
+    "explanation": "цемЕнт"
+  },
+  {
+    "text": "центнер",
+    "explanation": "цЕнтнер"
+  },
+  {
+    "text": "цінник",
+    "explanation": "ціннИк"
+  },
+  {
+    "text": "чарівний",
+    "explanation": "чарівнИй"
+  },
+  {
+    "text": "черговий",
+    "explanation": "черговИй"
+  },
+  {
+    "text": "читання",
+    "explanation": "читАння"
+  },
+  {
+    "text": "чорнозем",
+    "explanation": "чорнОзем"
+  },
+  {
+    "text": "чорнослив",
+    "explanation": "чорнОслив"
+  },
+  {
+    "text": "чотирнадцять",
+    "explanation": "чотирнАдцять"
+  },
+  {
+    "text": "шляхопровід",
+    "explanation": "шляхопровІд"
+  },
+  {
+    "text": "шовковий",
+    "explanation": "шовкОвий"
+  },
+  {
+    "text": "шофер",
+    "explanation": "шофЕр"
+  },
+  {
+    "text": "щелепа",
+    "explanation": "щЕлепа"
+  },
+  {
+    "text": "щипці",
+    "explanation": "щИпці"
+  },
+  {
+    "text": "щодобовий",
+    "explanation": "щодобовИй"
+  },
+  {
+    "text": "ярмарковий",
+    "explanation": "ярмаркОвий"
+  }
+]

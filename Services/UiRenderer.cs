@@ -23,6 +23,19 @@ public static class UiRenderer
         return (Strings.MainMenuTitle(l), keyboard);
     }
 
+    public static (string text, InlineKeyboardMarkup keyboard) ChooseDeck(Language l)
+    {
+        var deckButtons = Decks.All
+            .Select(d => new[] { InlineKeyboardButton.WithCallbackData($"{d.Emoji} {d.Name(l)}", $"deck:choose:{d.Id}") })
+            .ToArray();
+
+        var keyboard = new InlineKeyboardMarkup(deckButtons.Append(
+            new[] { InlineKeyboardButton.WithCallbackData(Strings.BtnBack(l), "nav:main") }
+        ));
+
+        return (Strings.ChooseDeckTitle(l), keyboard);
+    }
+
     public static (string text, InlineKeyboardMarkup keyboard) ChooseCount(Language l)
     {
         var countButtons = SessionSizes
@@ -38,10 +51,10 @@ public static class UiRenderer
         return (Strings.ChooseCountTitle(l), keyboard);
     }
 
-    public static (string text, InlineKeyboardMarkup keyboard) CardFront(Language l, Phraseologism card, int shown, int limit)
+    public static (string text, InlineKeyboardMarkup keyboard) CardFront(Language l, DeckDefinition deck, Phraseologism card, int shown, int limit)
     {
         var text = $"{Strings.SessionProgress(l, shown, limit)}\n\n" +
-                    $"{Strings.CardFrontLabel(l)}\n\n<i>{Escape(card.Text)}</i>";
+                    $"{deck.FrontLabel(l)}\n\n<i>{Escape(card.Text)}</i>";
 
         var keyboard = new InlineKeyboardMarkup(new[]
         {
@@ -52,11 +65,11 @@ public static class UiRenderer
         return (text, keyboard);
     }
 
-    public static (string text, InlineKeyboardMarkup keyboard) CardBack(Language l, Phraseologism card, int shown, int limit)
+    public static (string text, InlineKeyboardMarkup keyboard) CardBack(Language l, DeckDefinition deck, Phraseologism card, int shown, int limit)
     {
         var text = $"{Strings.SessionProgress(l, shown, limit)}\n\n" +
-                    $"{Strings.CardFrontLabel(l)}\n<i>{Escape(card.Text)}</i>\n\n" +
-                    $"{Strings.CardExplanationLabel(l)}\n{Escape(card.Explanation)}";
+                    $"{deck.FrontLabel(l)}\n<i>{Escape(card.Text)}</i>\n\n" +
+                    $"{deck.BackLabel(l)}\n{Escape(card.Explanation)}";
 
         var keyboard = new InlineKeyboardMarkup(new[]
         {

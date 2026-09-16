@@ -4,6 +4,7 @@ namespace QuizletBot.Models;
 public enum SessionState
 {
     Idle,
+    ChoosingDeck,
     ChoosingCount,
     Active,
     Ended
@@ -16,6 +17,10 @@ public class UserSession
 
     // Message we keep editing instead of sending new ones every time.
     public int MessageId { get; set; }
+
+    // Which card set the current/last session used - kept across ResetSession
+    // so "Try Again" reuses the same deck.
+    public string CurrentDeckId { get; set; } = "idioms";
 
     // Current flashcard round
     public int SessionLimit { get; set; }
