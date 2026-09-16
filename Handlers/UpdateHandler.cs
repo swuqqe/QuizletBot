@@ -18,12 +18,16 @@ public class UpdateHandler
     private readonly Dictionary<string, PhraseologismRepository> _repositories;
     private readonly SessionManager _sessions;
     private readonly UserDataStore _userData;
+    private readonly string _imagesDir;
+    private static readonly Random Shuffler = new();
 
-    public UpdateHandler(Dictionary<string, PhraseologismRepository> repositories, SessionManager sessions, UserDataStore userData)
+    public UpdateHandler(Dictionary<string, PhraseologismRepository> repositories, SessionManager sessions,
+        UserDataStore userData, string imagesDir)
     {
         _repositories = repositories;
         _sessions = sessions;
         _userData = userData;
+        _imagesDir = imagesDir;
     }
 
     private PhraseologismRepository RepoFor(UserSession session) => _repositories[session.CurrentDeckId];
@@ -72,7 +76,11 @@ public class UpdateHandler
         if (text is "/start" or "/menu")
         {
             session.State = SessionState.Idle;
-            await SendMainMenuAsync(bot, chatId, user.Language, ct, greet: text == "/start");
+            if (text == "/start")
+            {
+                await bot.SendTextMessageAsync(chatId, Strings.WelcomeText(user.Language), cancellationToken: ct);
+            }
+            await SendMainMenuAsync(bot, chatId, user.Language, ct);
             return;
         }
 
@@ -103,6 +111,10 @@ public class UpdateHandler
                 await HandleNavAsync(bot, chatId, messageId, action, user, session, ct);
                 break;
 
+            case "mode":
+                await HandleModeAsync(bot, chatId, messageId, action, param, user, session, ct);
+                break;
+
             case "deck":
                 await HandleDeckAsync(bot, chatId, messageId, action, param, user, session, ct);
                 break;
@@ -125,23 +137,37 @@ public class UpdateHandler
     {
         session.State = SessionState.Idle;
 
-        var (text, keyboard) = action switch
+        var (text, keyboard, image) = action switch
         {
             "main" => UiRenderer.MainMenu(user.Language),
-            "flashcards" => EnterChooseDeck(session, user.Language),
+            "flashcards" => EnterChooseMode(session, user.Language),
             "stats" => UiRenderer.Stats(user.Language, user),
             "settings" => UiRenderer.Settings(user.Language),
             "about" => UiRenderer.About(user.Language),
             _ => UiRenderer.MainMenu(user.Language)
         };
 
-        await EditAsync(bot, chatId, messageId, text, keyboard, ct);
+        await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
     }
 
-    private (string text, InlineKeyboardMarkup keyboard) EnterChooseDeck(UserSession session, Language lang)
+    private (string text, InlineKeyboardMarkup keyboard, string image) EnterChooseMode(UserSession session, Language lang)
     {
-        session.State = SessionState.ChoosingDeck;
-        return UiRenderer.ChooseDeck(lang);
+        session.State = SessionState.ChoosingMode;
+        return UiRenderer.ChooseMode(lang);
+    }
+
+    // ---------- mode:* - flip vs choose-correct picker ----------
+    private async Task HandleModeAsync(ITelegramBotClient bot, long chatId, int messageId, string action,
+        string param, UserData user, UserSession session, CancellationToken ct)
+    {
+        if (action == "choose")
+        {
+            session.CurrentMode = param == "choose" ? GameMode.ChooseCorrect : GameMode.Flip;
+            session.State = SessionState.ChoosingDeck;
+        }
+
+        var (text, keyboard, image) = UiRenderer.ChooseDeck(user.Language);
+        await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
     }
 
     // ---------- deck:* - card set picker ----------
@@ -154,11 +180,12 @@ public class UpdateHandler
             session.State = SessionState.ChoosingCount;
         }
 
-        var (text, keyboard) = UiRenderer.ChooseCount(user.Language);
-        await EditAsync(bot, chatId, messageId, text, keyboard, ct);
+        var deck = Decks.Get(session.CurrentDeckId);
+        var (text, keyboard, image) = UiRenderer.ChooseCount(user.Language, deck);
+        await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
     }
 
-    // ---------- fc:* - flashcard session ----------
+    // ---------- fc:* - flashcard / quiz session ----------
     private async Task HandleFlashcardsAsync(ITelegramBotClient bot, long chatId, int messageId, string action,
         string param, UserData user, UserSession session, CancellationToken ct)
     {
@@ -168,7 +195,7 @@ public class UpdateHandler
             {
                 var limit = int.TryParse(param, out var n) ? n : 5;
                 session.ResetSession(limit);
-                await ShowNextCardAsync(bot, chatId, messageId, user, session, ct);
+                await ShowNextRoundAsync(bot, chatId, messageId, user, session, ct);
                 break;
             }
 
@@ -178,8 +205,8 @@ public class UpdateHandler
                 var deck = Decks.Get(session.CurrentDeckId);
                 var card = RepoFor(session).GetById(session.CurrentCardId);
                 session.IsFlipped = true;
-                var (text, keyboard) = UiRenderer.CardBack(user.Language, deck, card, session.SessionShown, session.SessionLimit);
-                await EditAsync(bot, chatId, messageId, text, keyboard, ct);
+                var (text, keyboard, image) = UiRenderer.CardBack(user.Language, deck, card, session.SessionShown, session.SessionLimit);
+                await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
                 break;
             }
 
@@ -187,44 +214,94 @@ public class UpdateHandler
             case "dontknow":
             {
                 if (session.State != SessionState.Active) break;
-
-                var known = action == "know";
-                session.SessionKnown += known ? 1 : 0;
-                session.SessionUnknown += known ? 0 : 1;
-
-                user.TotalReviewed += 1;
-                user.TotalKnown += known ? 1 : 0;
-                user.TotalUnknown += known ? 0 : 1;
-                _userData.Save(user);
+                RecordAnswer(session, user, known: action == "know");
 
                 if (session.SessionShown >= session.SessionLimit)
                 {
-                    session.State = SessionState.Ended;
-                    var (text, keyboard) = UiRenderer.SessionEnd(user.Language, session.SessionLimit, session.SessionKnown, session.SessionUnknown);
-                    await EditAsync(bot, chatId, messageId, text, keyboard, ct);
+                    await ShowSessionEndAsync(bot, chatId, messageId, user, session, ct);
                 }
                 else
                 {
-                    await ShowNextCardAsync(bot, chatId, messageId, user, session, ct);
+                    await ShowNextRoundAsync(bot, chatId, messageId, user, session, ct);
+                }
+                break;
+            }
+
+            case "pick":
+            {
+                if (session.State != SessionState.Active) break;
+                var pickedIndex = int.TryParse(param, out var i) ? i : -1;
+                var wasCorrect = pickedIndex == session.CorrectChoiceIndex;
+                RecordAnswer(session, user, known: wasCorrect);
+
+                var deck = Decks.Get(session.CurrentDeckId);
+                var card = RepoFor(session).GetById(session.CurrentCardId);
+                var (text, keyboard, image) = UiRenderer.ChooseCorrectResult(user.Language, deck, card, wasCorrect, session.SessionShown, session.SessionLimit);
+                await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
+                break;
+            }
+
+            case "next":
+            {
+                if (session.SessionShown >= session.SessionLimit)
+                {
+                    await ShowSessionEndAsync(bot, chatId, messageId, user, session, ct);
+                }
+                else
+                {
+                    await ShowNextRoundAsync(bot, chatId, messageId, user, session, ct);
                 }
                 break;
             }
         }
     }
 
-    private async Task ShowNextCardAsync(ITelegramBotClient bot, long chatId, int messageId,
+    private void RecordAnswer(UserSession session, UserData user, bool known)
+    {
+        session.SessionKnown += known ? 1 : 0;
+        session.SessionUnknown += known ? 0 : 1;
+
+        var stats = session.CurrentMode == GameMode.Flip ? user.Flip : user.ChooseCorrect;
+        stats.TotalReviewed += 1;
+        stats.TotalKnown += known ? 1 : 0;
+        stats.TotalUnknown += known ? 0 : 1;
+        _userData.Save(user);
+    }
+
+    private async Task ShowNextRoundAsync(ITelegramBotClient bot, long chatId, int messageId,
         UserData user, UserSession session, CancellationToken ct)
     {
         var deck = Decks.Get(session.CurrentDeckId);
-        var card = RepoFor(session).GetRandom(session.ShownCardIds);
+        var repo = RepoFor(session);
+        var card = repo.GetRandom(session.ShownCardIds);
         session.CurrentCardId = card.Id;
         session.ShownCardIds.Add(card.Id);
         session.SessionShown += 1;
         session.IsFlipped = false;
         session.State = SessionState.Active;
 
-        var (text, keyboard) = UiRenderer.CardFront(user.Language, deck, card, session.SessionShown, session.SessionLimit);
-        await EditAsync(bot, chatId, messageId, text, keyboard, ct);
+        if (session.CurrentMode == GameMode.Flip)
+        {
+            var (text, keyboard, image) = UiRenderer.CardFront(user.Language, deck, card, session.SessionShown, session.SessionLimit);
+            await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
+        }
+        else
+        {
+            var distractors = repo.GetRandomOthers(card.Id, 2).Select(x => x.Explanation).ToList();
+            var choices = distractors.Append(card.Explanation).OrderBy(_ => Shuffler.Next()).ToList();
+            session.CurrentChoices = choices;
+            session.CorrectChoiceIndex = choices.IndexOf(card.Explanation);
+
+            var (text, keyboard, image) = UiRenderer.ChooseCorrectQuestion(user.Language, deck, card, choices, session.SessionShown, session.SessionLimit);
+            await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
+        }
+    }
+
+    private async Task ShowSessionEndAsync(ITelegramBotClient bot, long chatId, int messageId, UserData user, UserSession session, CancellationToken ct)
+    {
+        session.State = SessionState.Ended;
+        var (text, keyboard, image) = UiRenderer.SessionEnd(user.Language, session.SessionLimit, session.SessionKnown, session.SessionUnknown);
+        await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
     }
 
     // ---------- settings:* - language switch ----------
@@ -237,30 +314,46 @@ public class UpdateHandler
             _userData.Save(user);
         }
 
-        var (text, keyboard) = UiRenderer.Settings(user.Language);
-        await EditAsync(bot, chatId, messageId, text, keyboard, ct);
+        var (text, keyboard, image) = UiRenderer.Settings(user.Language);
+        await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
     }
 
     // ==================== Helpers ====================
 
-    private async Task SendMainMenuAsync(ITelegramBotClient bot, long chatId, Language lang, CancellationToken ct, bool greet = false)
+    private async Task SendMainMenuAsync(ITelegramBotClient bot, long chatId, Language lang, CancellationToken ct)
     {
-        if (greet)
-        {
-            await bot.SendTextMessageAsync(chatId, Strings.WelcomeText(lang), cancellationToken: ct);
-        }
-
-        var (text, keyboard) = UiRenderer.MainMenu(lang);
-        var sent = await bot.SendTextMessageAsync(chatId, text,
-            parseMode: ParseMode.Html, replyMarkup: keyboard, cancellationToken: ct);
-
+        var (text, keyboard, image) = UiRenderer.MainMenu(lang);
+        var sent = await SendPhotoAsync(bot, chatId, text, keyboard, image, ct);
         _sessions.GetOrCreate(chatId).MessageId = sent.MessageId;
     }
 
-    private static async Task EditAsync(ITelegramBotClient bot, long chatId, int messageId,
-        string text, InlineKeyboardMarkup keyboard, CancellationToken ct)
+    private async Task<Message> SendPhotoAsync(ITelegramBotClient bot, long chatId, string caption,
+        InlineKeyboardMarkup keyboard, string imageFile, CancellationToken ct)
     {
-        await bot.EditMessageTextAsync(chatId, messageId, text,
-            parseMode: ParseMode.Html, replyMarkup: keyboard, cancellationToken: ct);
+        await using var stream = System.IO.File.OpenRead(Path.Combine(_imagesDir, imageFile));
+        return await bot.SendPhotoAsync(
+            chatId: chatId,
+            photo: InputFile.FromStream(stream, imageFile),
+            caption: caption,
+            parseMode: ParseMode.Html,
+            replyMarkup: keyboard,
+            cancellationToken: ct);
+    }
+
+    private async Task EditPhotoAsync(ITelegramBotClient bot, long chatId, int messageId,
+        string caption, InlineKeyboardMarkup keyboard, string imageFile, CancellationToken ct)
+    {
+        await using var stream = System.IO.File.OpenRead(Path.Combine(_imagesDir, imageFile));
+        var media = new InputMediaPhoto(InputFile.FromStream(stream, imageFile))
+        {
+            Caption = caption,
+            ParseMode = ParseMode.Html
+        };
+        await bot.EditMessageMediaAsync(
+            chatId: chatId,
+            messageId: messageId,
+            media: media,
+            replyMarkup: keyboard,
+            cancellationToken: ct);
     }
 }

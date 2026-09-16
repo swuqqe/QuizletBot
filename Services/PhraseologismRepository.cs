@@ -58,4 +58,14 @@ public class PhraseologismRepository
 
         return pool[_random.Next(pool.Count)];
     }
+
+    // Grabs `count` random cards other than excludeId - used as wrong answers
+    // in Choose-Correct mode.
+    public List<Phraseologism> GetRandomOthers(int excludeId, int count)
+    {
+        return _items.Where(x => x.Id != excludeId)
+            .OrderBy(_ => _random.Next())
+            .Take(count)
+            .ToList();
+    }
 }

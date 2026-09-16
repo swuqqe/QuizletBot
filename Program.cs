@@ -29,9 +29,17 @@ var repositories = Decks.All.ToDictionary(
     deck => deck.Id,
     deck => new PhraseologismRepository(Path.Combine(baseDir, "Data", deck.DataFile)));
 
+var imagesDir = Path.Combine(baseDir, "Assets", "Images");
+if (!Directory.Exists(imagesDir))
+{
+    Console.WriteLine($"❌ Images folder not found: {imagesDir}");
+    Console.WriteLine("Make sure Assets/Images/*.png is next to the built exe.");
+    return;
+}
+
 var sessions = new SessionManager();
 var userDataStore = new UserDataStore(Path.Combine(baseDir, "userdata.json"));
-var handler = new UpdateHandler(repositories, sessions, userDataStore);
+var handler = new UpdateHandler(repositories, sessions, userDataStore, imagesDir);
 
 var botClient = new TelegramBotClient(token);
 using var cts = new CancellationTokenSource();
@@ -48,7 +56,7 @@ botClient.StartReceiving(
     cancellationToken: cts.Token);
 
 var me = await botClient.GetMeAsync(cts.Token);
-Console.WriteLine($"✅ Бот @{me.Username} запущено.");
+Console.WriteLine($"✅ NMT Learner (@{me.Username}) запущено.");
 foreach (var deck in Decks.All)
 {
     Console.WriteLine($"   {deck.Emoji} {deck.Name(Language.UA)}: {repositories[deck.Id].Count} карток");

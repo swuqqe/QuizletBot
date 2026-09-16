@@ -10,6 +10,7 @@ public class DeckDefinition
     public required string Id { get; init; }
     public required string DataFile { get; init; }
     public required string Emoji { get; init; }
+    public required string ImageFile { get; init; }
     public required Func<Language, string> Name { get; init; }
     public required Func<Language, string> FrontLabel { get; init; }
     public required Func<Language, string> BackLabel { get; init; }
@@ -22,6 +23,7 @@ public static class Decks
         Id = "idioms",
         DataFile = "phraseologisms.json",
         Emoji = "📖",
+        ImageFile = "deck_idioms.png",
         Name = l => l == Language.UA ? "Фразеологізми" : "Idioms",
         FrontLabel = l => l == Language.UA ? "📖 Фразеологізм:" : "📖 Phrase:",
         BackLabel = l => l == Language.UA ? "💡 Пояснення:" : "💡 Explanation:"
@@ -32,6 +34,7 @@ public static class Decks
         Id = "stress",
         DataFile = "naholosy.json",
         Emoji = "🔤",
+        ImageFile = "deck_stress.png",
         Name = l => l == Language.UA ? "Наголоси" : "Word Stress",
         FrontLabel = l => l == Language.UA ? "🔤 Слово:" : "🔤 Word:",
         BackLabel = l => l == Language.UA ? "✅ Правильний наголос:" : "✅ Correct stress:"
@@ -42,6 +45,7 @@ public static class Decks
         Id = "lexical",
         DataFile = "leksychni_pomylky.json",
         Emoji = "✏️",
+        ImageFile = "deck_lexical.png",
         Name = l => l == Language.UA ? "Лексичні помилки" : "Lexical Mistakes",
         FrontLabel = l => l == Language.UA ? "❌ Неправильно:" : "❌ Incorrect:",
         BackLabel = l => l == Language.UA ? "✅ Правильно:" : "✅ Correct:"

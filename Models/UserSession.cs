@@ -4,6 +4,7 @@ namespace QuizletBot.Models;
 public enum SessionState
 {
     Idle,
+    ChoosingMode,
     ChoosingDeck,
     ChoosingCount,
     Active,
@@ -18,8 +19,9 @@ public class UserSession
     // Message we keep editing instead of sending new ones every time.
     public int MessageId { get; set; }
 
-    // Which card set the current/last session used - kept across ResetSession
-    // so "Try Again" reuses the same deck.
+    // Which mode and deck the current/last session used - kept across
+    // ResetSession so "Try Again" reuses the same setup.
+    public GameMode CurrentMode { get; set; } = GameMode.Flip;
     public string CurrentDeckId { get; set; } = "idioms";
 
     // Current flashcard round
@@ -34,6 +36,11 @@ public class UserSession
     // Cards already shown this round, so we don't repeat them.
     public HashSet<int> ShownCardIds { get; set; } = new();
 
+    // Choose-Correct mode: the 3 answer options currently on screen and
+    // which one is right, so we can grade whichever button gets tapped.
+    public List<string> CurrentChoices { get; set; } = new();
+    public int CorrectChoiceIndex { get; set; }
+
     public void ResetSession(int limit)
     {
         State = SessionState.Active;
@@ -44,5 +51,7 @@ public class UserSession
         CurrentCardId = 0;
         IsFlipped = false;
         ShownCardIds.Clear();
+        CurrentChoices.Clear();
+        CorrectChoiceIndex = 0;
     }
 }
