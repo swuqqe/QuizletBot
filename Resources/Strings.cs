@@ -106,10 +106,10 @@ public static class Strings
     public static string AboutBody(Language l) => l == Language.UA
         ? "<b>NMT Learner Bot</b> — тренажер для підготовки до НМТ: фразеологізми, наголоси та лексичні помилки у форматі флеш-карток і тестів.\n\n" +
           "🛠 <b>Технології:</b> C#, .NET 8, Telegram.Bot\n\n" +
-          "👤 <b>Розробник:</b> @your_tag"
+          "👤 <b>Розробник:</b> @yfsja7777"
         : "<b>NMT Learner Bot</b> — an NMT exam prep trainer: idioms, word stress, and lexical mistakes as flashcards and quizzes.\n\n" +
           "🛠 <b>Tech stack:</b> C#, .NET 8, Telegram.Bot\n\n" +
-          "👤 <b>Developer:</b> @your_tag";
+          "👤 <b>Developer:</b> @yfsja7777";
 
     // ---------- Greeting ----------
     public static string WelcomeText(Language l) => l == Language.UA
