@@ -7,12 +7,20 @@ using SixLabors.ImageSharp.Processing;
 
 namespace QuizletBot.Services;
 
-// Draws a card's text (the word/phrase itself) onto its deck's badge image,
-// so it shows up on the picture instead of only in the caption below it.
+// Renders a card's text as the entire image - a plain blue background with
+// the word/phrase filling most of it. Nothing else on the picture: no deck
+// icon, no badge, just the text itself, as large as it'll fit.
 public class CardImageComposer
 {
+    private const int Width = 800;
+    private const int Height = 450;
+
+    // Material Blue, top to bottom
+    private static readonly (byte r, byte g, byte b) Top = (66, 165, 245);
+    private static readonly (byte r, byte g, byte b) Bottom = (13, 71, 161);
+
     private readonly FontFamily _fontFamily;
-    private static readonly int[] FontSizes = { 44, 38, 32, 27, 23, 20 };
+    private static readonly int[] FontSizes = { 88, 76, 64, 54, 46, 38, 32, 27 };
 
     public CardImageComposer(string fontPath)
     {
@@ -20,12 +28,30 @@ public class CardImageComposer
         _fontFamily = collection.Add(fontPath);
     }
 
-    public byte[] Compose(string baseImagePath, string text)
+    public byte[] Compose(string text)
     {
-        using var image = Image.Load<Rgba32>(baseImagePath);
+        using var image = new Image<Rgba32>(Width, Height);
 
-        var maxWidth = image.Width * 0.8f;
-        var maxHeight = image.Height * 0.32f;
+        image.Mutate(ctx =>
+        {
+            // Simple vertical gradient, drawn as thin horizontal bands - avoids
+            // depending on a specific gradient-brush API surface.
+            const int bands = 60;
+            for (var i = 0; i < bands; i++)
+            {
+                var t = i / (float)(bands - 1);
+                var r = (byte)(Top.r + (Bottom.r - Top.r) * t);
+                var g = (byte)(Top.g + (Bottom.g - Top.g) * t);
+                var b = (byte)(Top.b + (Bottom.b - Top.b) * t);
+                var y0 = Height * i / (float)bands;
+                var y1 = Height * (i + 1) / (float)bands;
+                var band = new RectangleF(0, y0, Width, y1 - y0 + 1);
+                ctx.Fill(Color.FromRgb(r, g, b), new RectangularPolygon(band));
+            }
+        });
+
+        var maxWidth = Width * 0.84f;
+        var maxHeight = Height * 0.72f;
 
         var font = _fontFamily.CreateFont(FontSizes[^1], FontStyle.Bold);
         var lines = new List<string> { text };
@@ -46,27 +72,15 @@ public class CardImageComposer
 
         var lineHeight = font.Size * 1.25f;
         var blockHeight = lines.Count * lineHeight;
-        var centerY = image.Height * 0.82f;
-        var startY = centerY - blockHeight / 2f;
+        var startY = Height / 2f - blockHeight / 2f;
 
         image.Mutate(ctx =>
         {
-            var widestLine = lines.Max(line => TextMeasurer.MeasureSize(line, new TextOptions(font)).Width);
-            var pillWidth = Math.Min(widestLine + 56, image.Width - 40);
-            var pillHeight = blockHeight + 28;
-            var pillRect = new RectangleF(
-                image.Width / 2f - pillWidth / 2f,
-                startY - 14,
-                pillWidth,
-                pillHeight);
-
-            ctx.Fill(Color.FromRgba(0, 0, 0, 140), new RectangularPolygon(pillRect));
-
             var y = startY;
             foreach (var line in lines)
             {
                 var size = TextMeasurer.MeasureSize(line, new TextOptions(font));
-                var x = image.Width / 2f - size.Width / 2f;
+                var x = Width / 2f - size.Width / 2f;
                 ctx.DrawText(line, font, Color.White, new PointF(x, y));
                 y += lineHeight;
             }

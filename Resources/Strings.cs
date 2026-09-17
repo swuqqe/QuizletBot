@@ -12,7 +12,7 @@ public static class Strings
         ? "🏠 <b>NMT Learner — Головне меню</b>\n\nОберіть розділ:"
         : "🏠 <b>NMT Learner — Main Menu</b>\n\nChoose a section:";
 
-    public static string BtnFlashcards(Language l) => l == Language.UA ? "📚 Картки" : "📚 Flashcards";
+    public static string BtnFlashcards(Language l) => l == Language.UA ? "🚀 Розпочати" : "🚀 Start";
     public static string BtnStatistics(Language l) => l == Language.UA ? "📊 Статистика" : "📊 Statistics";
     public static string BtnSettings(Language l) => l == Language.UA ? "⚙️ Налаштування" : "⚙️ Settings";
     public static string BtnAbout(Language l) => l == Language.UA ? "ℹ️ Про бота" : "ℹ️ About Bot";

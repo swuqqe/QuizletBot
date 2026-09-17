@@ -225,7 +225,7 @@ public class UpdateHandler
                 var card = RepoFor(session).GetById(session.CurrentCardId);
                 session.IsFlipped = true;
                 var (text, keyboard, _) = UiRenderer.CardBack(user.Language, deck, card, session.SessionShown, session.SessionLimit);
-                await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, deck, card.Text, ct);
+                await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, card.Text, ct);
                 break;
             }
 
@@ -256,7 +256,7 @@ public class UpdateHandler
                 var deck = Decks.Get(session.CurrentDeckId);
                 var card = RepoFor(session).GetById(session.CurrentCardId);
                 var (text, keyboard, _) = UiRenderer.ChooseCorrectResult(user.Language, deck, card, wasCorrect, session.SessionShown, session.SessionLimit);
-                await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, deck, card.Text, ct);
+                await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, card.Text, ct);
                 break;
             }
 
@@ -302,17 +302,17 @@ public class UpdateHandler
         if (session.CurrentMode == GameMode.Flip)
         {
             var (text, keyboard, _) = UiRenderer.CardFront(user.Language, deck, card, session.SessionShown, session.SessionLimit);
-            await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, deck, card.Text, ct);
+            await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, card.Text, ct);
         }
         else
         {
-            var distractors = repo.GetRandomOthers(card.Id, 2).Select(x => x.Explanation).ToList();
+            var distractors = DistractorGenerator.Generate(deck, repo, card, 2, Shuffler);
             var choices = distractors.Append(card.Explanation).OrderBy(_ => Shuffler.Next()).ToList();
             session.CurrentChoices = choices;
             session.CorrectChoiceIndex = choices.IndexOf(card.Explanation);
 
             var (text, keyboard, _) = UiRenderer.ChooseCorrectQuestion(user.Language, deck, card, choices, session.SessionShown, session.SessionLimit);
-            await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, deck, card.Text, ct);
+            await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, card.Text, ct);
         }
     }
 
@@ -376,12 +376,12 @@ public class UpdateHandler
             cancellationToken: ct);
     }
 
-    // Same as EditPhotoAsync, but for a card's badge with its text baked in -
+    // Same as EditPhotoAsync, but renders the card's text as the full image -
     // composed on the fly instead of read from a static file.
     private async Task EditCardPhotoAsync(ITelegramBotClient bot, long chatId, int messageId,
-        string caption, InlineKeyboardMarkup keyboard, DeckDefinition deck, string cardText, CancellationToken ct)
+        string caption, InlineKeyboardMarkup keyboard, string cardText, CancellationToken ct)
     {
-        var imageBytes = _imageComposer.Compose(Path.Combine(_imagesDir, deck.ImageFile), cardText);
+        var imageBytes = _imageComposer.Compose(cardText);
         using var stream = new MemoryStream(imageBytes);
         var media = new InputMediaPhoto(InputFile.FromStream(stream, "card.png"))
         {
