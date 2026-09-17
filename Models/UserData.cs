@@ -1,6 +1,6 @@
 namespace QuizletBot.Models;
 
-// One mode's running totals.
+// One deck's running totals.
 public class ModeStats
 {
     public int TotalReviewed { get; set; }
@@ -9,12 +9,22 @@ public class ModeStats
 }
 
 // Stuff that needs to survive a bot restart: language and all-time stats,
-// tracked separately per game mode.
+// tracked per deck (idioms / stress / lexical) - this is what actually tells
+// you what you've learned, unlike splitting by game mode.
 public class UserData
 {
     public long ChatId { get; set; }
     public Language Language { get; set; } = Language.UA;
 
-    public ModeStats Flip { get; set; } = new();
-    public ModeStats ChooseCorrect { get; set; } = new();
+    public Dictionary<string, ModeStats> DeckStats { get; set; } = new();
+
+    public ModeStats StatsFor(string deckId)
+    {
+        if (!DeckStats.TryGetValue(deckId, out var stats))
+        {
+            stats = new ModeStats();
+            DeckStats[deckId] = stats;
+        }
+        return stats;
+    }
 }

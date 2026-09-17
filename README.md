@@ -9,12 +9,12 @@ banner image on every screen.
 
 ```
 🏠 Main Menu
-├── 🎴 Flashcards
-│   ├── pick a mode: 🔄 Flip Cards / ❓ Choose Correct
+├── 📚 Flashcards
 │   ├── pick a deck: 📖 Idioms / 🔤 Word Stress / ✏️ Lexical Mistakes
-│   ├── pick a count: 5 / 15 / 25 / 50
+│   ├── pick a mode: 🔄 Flip Cards / ❓ Choose Correct
+│   ├── pick a count: 5 / 15 / 25 / 50, then 🚀 Start
 │   └── → session → summary
-├── 📊 Statistics    → stats split by mode (Flip Cards vs Choose Correct)
+├── 📊 Statistics    → stats split by deck (what you've actually learned)
 ├── ⚙️ Settings      → language toggle UA / EN
 └── ℹ️ About Bot      → tech stack, developer contact
 ```
@@ -25,29 +25,28 @@ Every screen has a **🏠 Main Menu** button (static submenus also get
 ## ✨ How it works
 
 1. `/start` → main menu
-2. **🎴 Flashcards** → pick a mode:
+2. **📚 Flashcards** → pick a deck (Idioms / Word Stress / Lexical Mistakes)
+3. Pick a mode:
    - **🔄 Flip Cards** — see the front, tap to reveal the back, mark
      **⬅️ Don't know** / **➡️ Know**
-   - **❓ Choose Correct** — see the front, pick one of 3 answers, bot tells
-     you right away if you got it, tap **➡️ Next** to continue
-3. Pick a deck (Idioms / Word Stress / Lexical Mistakes)
-4. Pick how many cards to review (5, 15, 25, or 50)
+   - **❓ Choose Correct** — see the question, pick one of 3 answers, bot
+     tells you right away if you got it, tap **➡️ Next** to continue
+4. Pick how many cards to review (5, 15, 25, or 50), then tap **🚀 Start**
 5. Bot runs the session, one card/question at a time
 6. Once the limit is reached — a summary screen: cards reviewed, know/don't-know
-   split, with **🔄 Try Again** (same mode, deck, and count) and **🏠 Main Menu**
+   split, with **🔄 Try Again** (same deck, mode, and count) and **🏠 Main Menu**
 
 > Telegram bots can't detect swipe gestures, so "swipe left/right" is
 > implemented as a button tap instead. Functionally the same thing.
 
 ## 🖼 Images
 
-Every screen sends a themed banner image alongside its text — a different
-one per deck (idioms/stress/lexical) and per static screen (main menu, mode
-picker, stats, settings, about, session summary). These are generated flat
-icons under `Assets/Images/`, not photos of individual card content — with
-800+ cards across three decks, illustrating each one individually isn't
-practical, so the deck's banner stays on screen throughout that deck's
-session instead.
+Every screen sends an image alongside its text. Static screens (main menu,
+deck picker, mode picker, stats, settings, about, session summary) use a
+themed banner from `Assets/Images/`. Card screens (front/back, quiz question,
+quiz result) go further: the actual word or phrase is drawn onto the deck's
+banner at runtime via `CardImageComposer` (using SixLabors.ImageSharp), so
+it shows up right on the picture — not just in the caption underneath.
 
 ## 🗂 Data
 
@@ -69,10 +68,13 @@ other cards in the same deck each time — they're not fixed distractors.
 - Long polling (no webhooks — no need for a public HTTPS server)
 - Simple file-based persistence (`userdata.json`) for stats and language — no external DB needed
 
-> **Upgrading from an older version:** stats are now tracked separately per
-> game mode. If you have an existing `userdata.json` from before Choose
-> Correct mode existed, its old combined totals won't carry over — stats
-> start fresh at zero. Nothing else is affected.
+> **Upgrading from an older version:** stats are now tracked per deck
+> (idioms/stress/lexical) instead of per game mode, and card images now have
+> the actual word/phrase drawn onto them at runtime. If you have an existing
+> `userdata.json`, its old totals won't carry over — stats start fresh once.
+> This version also adds two new NuGet packages (SixLabors.ImageSharp and
+> SixLabors.ImageSharp.Drawing) for that text-on-image rendering — run
+> `dotnet restore` after pulling these changes.
 
 ## 🚀 Getting started
 
@@ -145,7 +147,8 @@ QuizletBot/
 │   ├── PhraseologismRepository.cs  # loads cards, random picks, distractors for quizzes
 │   ├── SessionManager.cs           # in-memory user sessions
 │   ├── UserDataStore.cs            # file-based persistence (userdata.json)
-│   └── UiRenderer.cs               # text + keyboard + image for every screen
+│   ├── UiRenderer.cs               # text + keyboard + image for every screen
+│   └── CardImageComposer.cs        # draws a card's text onto its deck banner at runtime
 ├── Resources/
 │   ├── Strings.cs                  # all UA/EN UI text in one place
 │   ├── Decks.cs                    # deck definitions: data file, name, labels, banner image
@@ -155,6 +158,7 @@ QuizletBot/
 │   ├── naholosy.json               # word stress deck
 │   └── leksychni_pomylky.json      # lexical mistakes deck
 ├── Assets/Images/                  # generated banner images, one per screen/deck
+├── Assets/Fonts/                   # bundled font used to draw card text onto images
 ├── appsettings.example.json        # config template (no real token)
 └── appsettings.json                # your real token (gitignored, not in the repo)
 ```

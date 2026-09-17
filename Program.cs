@@ -37,9 +37,18 @@ if (!Directory.Exists(imagesDir))
     return;
 }
 
+var fontPath = Path.Combine(baseDir, "Assets", "Fonts", "DejaVuSans-Bold.ttf");
+if (!File.Exists(fontPath))
+{
+    Console.WriteLine($"❌ Font not found: {fontPath}");
+    Console.WriteLine("Make sure Assets/Fonts/DejaVuSans-Bold.ttf is next to the built exe.");
+    return;
+}
+
+var imageComposer = new CardImageComposer(fontPath);
 var sessions = new SessionManager();
 var userDataStore = new UserDataStore(Path.Combine(baseDir, "userdata.json"));
-var handler = new UpdateHandler(repositories, sessions, userDataStore, imagesDir);
+var handler = new UpdateHandler(repositories, sessions, userDataStore, imagesDir, imageComposer);
 
 var botClient = new TelegramBotClient(token);
 using var cts = new CancellationTokenSource();

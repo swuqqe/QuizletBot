@@ -30,6 +30,9 @@ public class UserSession
     public int SessionKnown { get; set; }
     public int SessionUnknown { get; set; }
 
+    // Count picked on the count screen but not confirmed with Start yet.
+    public int PendingCount { get; set; }
+
     public int CurrentCardId { get; set; }
     public bool IsFlipped { get; set; }
 
@@ -45,6 +48,7 @@ public class UserSession
     {
         State = SessionState.Active;
         SessionLimit = limit;
+        PendingCount = 0;
         SessionShown = 0;
         SessionKnown = 0;
         SessionUnknown = 0;

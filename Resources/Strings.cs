@@ -12,7 +12,7 @@ public static class Strings
         ? "🏠 <b>NMT Learner — Головне меню</b>\n\nОберіть розділ:"
         : "🏠 <b>NMT Learner — Main Menu</b>\n\nChoose a section:";
 
-    public static string BtnFlashcards(Language l) => l == Language.UA ? "🎴 Картки" : "🎴 Flashcards";
+    public static string BtnFlashcards(Language l) => l == Language.UA ? "📚 Картки" : "📚 Flashcards";
     public static string BtnStatistics(Language l) => l == Language.UA ? "📊 Статистика" : "📊 Statistics";
     public static string BtnSettings(Language l) => l == Language.UA ? "⚙️ Налаштування" : "⚙️ Settings";
     public static string BtnAbout(Language l) => l == Language.UA ? "ℹ️ Про бота" : "ℹ️ About Bot";
@@ -29,15 +29,21 @@ public static class Strings
     public static string BtnModeFlip(Language l) => l == Language.UA ? "🔄 Флеш-картки" : "🔄 Flip Cards";
     public static string BtnModeChoose(Language l) => l == Language.UA ? "❓ Вибери правильну" : "❓ Choose Correct";
 
-    // ---------- Deck picker ----------
+    // ---------- Deck picker ("What to study") ----------
     public static string ChooseDeckTitle(Language l) => l == Language.UA
-        ? "🎴 <b>Картки</b>\n\nОберіть набір карток:"
-        : "🎴 <b>Flashcards</b>\n\nChoose a card set:";
+        ? "🎴 <b>Що вивчаємо?</b>\n\nОберіть набір карток:"
+        : "🎴 <b>What to study?</b>\n\nChoose a card set:";
 
     // ---------- Card count picker ----------
     public static string ChooseCountTitle(Language l) => l == Language.UA
         ? "🎴 <b>Картки</b>\n\nСкільки карток хочете пройти цього разу?"
         : "🎴 <b>Flashcards</b>\n\nHow many cards would you like to review?";
+
+    public static string ChooseCountSelected(Language l, int count) => l == Language.UA
+        ? $"Обрано: <b>{count}</b> карток. Натисніть «Старт», щоб почати."
+        : $"Selected: <b>{count}</b> cards. Tap Start to begin.";
+
+    public static string BtnStart(Language l) => l == Language.UA ? "🚀 Старт" : "🚀 Start";
 
     // ---------- Card front/back (Flip mode) ----------
     public static string BtnShowExplanation(Language l) => l == Language.UA ? "🔄 Показати пояснення" : "🔄 Show explanation";
@@ -79,12 +85,9 @@ public static class Strings
         ? $"Усього переглянуто карток: <b>{total}</b>"
         : $"Total cards reviewed: <b>{total}</b>";
 
-    public static string StatsModeSection(Language l, string modeName, int totalReviewed, int totalKnown, int totalUnknown) => l == Language.UA
-        ? $"<b>{modeName}</b>\nПереглянуто: <b>{totalReviewed}</b> | ➡️ Знаю: <b>{totalKnown}</b> | ⬅️ Не знаю: <b>{totalUnknown}</b>"
-        : $"<b>{modeName}</b>\nReviewed: <b>{totalReviewed}</b> | ➡️ Know: <b>{totalKnown}</b> | ⬅️ Don't know: <b>{totalUnknown}</b>";
-
-    public static string StatsModeNameFlip(Language l) => l == Language.UA ? "🔄 Флеш-картки" : "🔄 Flip Cards";
-    public static string StatsModeNameChoose(Language l) => l == Language.UA ? "❓ Вибери правильну" : "❓ Choose Correct";
+    public static string StatsModeSection(Language l, string sectionName, int totalReviewed, int totalKnown, int totalUnknown) => l == Language.UA
+        ? $"<b>{sectionName}</b>\nПереглянуто: <b>{totalReviewed}</b> | ➡️ Знаю: <b>{totalKnown}</b> | ⬅️ Не знаю: <b>{totalUnknown}</b>"
+        : $"<b>{sectionName}</b>\nReviewed: <b>{totalReviewed}</b> | ➡️ Know: <b>{totalKnown}</b> | ⬅️ Don't know: <b>{totalUnknown}</b>";
 
     // ---------- Settings ----------
     public static string SettingsTitle(Language l) => l == Language.UA
@@ -103,10 +106,10 @@ public static class Strings
     public static string AboutBody(Language l) => l == Language.UA
         ? "<b>NMT Learner Bot</b> — тренажер для підготовки до НМТ: фразеологізми, наголоси та лексичні помилки у форматі флеш-карток і тестів.\n\n" +
           "🛠 <b>Технології:</b> C#, .NET 8, Telegram.Bot\n\n" +
-          "👤 <b>Розробник:</b> @yfsja7777"
+          "👤 <b>Розробник:</b> @your_tag"
         : "<b>NMT Learner Bot</b> — an NMT exam prep trainer: idioms, word stress, and lexical mistakes as flashcards and quizzes.\n\n" +
           "🛠 <b>Tech stack:</b> C#, .NET 8, Telegram.Bot\n\n" +
-          "👤 <b>Developer:</b> @yfsja7777";
+          "👤 <b>Developer:</b> @your_tag";
 
     // ---------- Greeting ----------
     public static string WelcomeText(Language l) => l == Language.UA

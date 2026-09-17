@@ -19,15 +19,17 @@ public class UpdateHandler
     private readonly SessionManager _sessions;
     private readonly UserDataStore _userData;
     private readonly string _imagesDir;
+    private readonly CardImageComposer _imageComposer;
     private static readonly Random Shuffler = new();
 
     public UpdateHandler(Dictionary<string, PhraseologismRepository> repositories, SessionManager sessions,
-        UserDataStore userData, string imagesDir)
+        UserDataStore userData, string imagesDir, CardImageComposer imageComposer)
     {
         _repositories = repositories;
         _sessions = sessions;
         _userData = userData;
         _imagesDir = imagesDir;
+        _imageComposer = imageComposer;
     }
 
     private PhraseologismRepository RepoFor(UserSession session) => _repositories[session.CurrentDeckId];
@@ -140,7 +142,7 @@ public class UpdateHandler
         var (text, keyboard, image) = action switch
         {
             "main" => UiRenderer.MainMenu(user.Language),
-            "flashcards" => EnterChooseMode(session, user.Language),
+            "flashcards" => EnterChooseDeck(session, user.Language),
             "stats" => UiRenderer.Stats(user.Language, user),
             "settings" => UiRenderer.Settings(user.Language),
             "about" => UiRenderer.About(user.Language),
@@ -150,10 +152,24 @@ public class UpdateHandler
         await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
     }
 
-    private (string text, InlineKeyboardMarkup keyboard, string image) EnterChooseMode(UserSession session, Language lang)
+    private (string text, InlineKeyboardMarkup keyboard, string image) EnterChooseDeck(UserSession session, Language lang)
     {
-        session.State = SessionState.ChoosingMode;
-        return UiRenderer.ChooseMode(lang);
+        session.State = SessionState.ChoosingDeck;
+        return UiRenderer.ChooseDeck(lang);
+    }
+
+    // ---------- deck:* - card set picker ("what to study") ----------
+    private async Task HandleDeckAsync(ITelegramBotClient bot, long chatId, int messageId, string action,
+        string param, UserData user, UserSession session, CancellationToken ct)
+    {
+        if (action == "choose" && _repositories.ContainsKey(param))
+        {
+            session.CurrentDeckId = param;
+            session.State = SessionState.ChoosingMode;
+        }
+
+        var (text, keyboard, image) = UiRenderer.ChooseMode(user.Language);
+        await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
     }
 
     // ---------- mode:* - flip vs choose-correct picker ----------
@@ -163,25 +179,12 @@ public class UpdateHandler
         if (action == "choose")
         {
             session.CurrentMode = param == "choose" ? GameMode.ChooseCorrect : GameMode.Flip;
-            session.State = SessionState.ChoosingDeck;
-        }
-
-        var (text, keyboard, image) = UiRenderer.ChooseDeck(user.Language);
-        await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
-    }
-
-    // ---------- deck:* - card set picker ----------
-    private async Task HandleDeckAsync(ITelegramBotClient bot, long chatId, int messageId, string action,
-        string param, UserData user, UserSession session, CancellationToken ct)
-    {
-        if (action == "choose" && _repositories.ContainsKey(param))
-        {
-            session.CurrentDeckId = param;
             session.State = SessionState.ChoosingCount;
+            session.PendingCount = 0;
         }
 
         var deck = Decks.Get(session.CurrentDeckId);
-        var (text, keyboard, image) = UiRenderer.ChooseCount(user.Language, deck);
+        var (text, keyboard, image) = UiRenderer.ChooseCount(user.Language, deck, session.PendingCount);
         await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
     }
 
@@ -191,7 +194,23 @@ public class UpdateHandler
     {
         switch (action)
         {
-            case "count":
+            case "setcount":
+            {
+                session.PendingCount = int.TryParse(param, out var picked) ? picked : 5;
+                var deck = Decks.Get(session.CurrentDeckId);
+                var (text, keyboard, image) = UiRenderer.ChooseCount(user.Language, deck, session.PendingCount);
+                await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
+                break;
+            }
+
+            case "start":
+            {
+                session.ResetSession(session.PendingCount > 0 ? session.PendingCount : 5);
+                await ShowNextRoundAsync(bot, chatId, messageId, user, session, ct);
+                break;
+            }
+
+            case "count": // used by "Try Again" on the summary screen - starts right away, same setup
             {
                 var limit = int.TryParse(param, out var n) ? n : 5;
                 session.ResetSession(limit);
@@ -205,8 +224,8 @@ public class UpdateHandler
                 var deck = Decks.Get(session.CurrentDeckId);
                 var card = RepoFor(session).GetById(session.CurrentCardId);
                 session.IsFlipped = true;
-                var (text, keyboard, image) = UiRenderer.CardBack(user.Language, deck, card, session.SessionShown, session.SessionLimit);
-                await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
+                var (text, keyboard, _) = UiRenderer.CardBack(user.Language, deck, card, session.SessionShown, session.SessionLimit);
+                await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, deck, card.Text, ct);
                 break;
             }
 
@@ -236,8 +255,8 @@ public class UpdateHandler
 
                 var deck = Decks.Get(session.CurrentDeckId);
                 var card = RepoFor(session).GetById(session.CurrentCardId);
-                var (text, keyboard, image) = UiRenderer.ChooseCorrectResult(user.Language, deck, card, wasCorrect, session.SessionShown, session.SessionLimit);
-                await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
+                var (text, keyboard, _) = UiRenderer.ChooseCorrectResult(user.Language, deck, card, wasCorrect, session.SessionShown, session.SessionLimit);
+                await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, deck, card.Text, ct);
                 break;
             }
 
@@ -261,7 +280,7 @@ public class UpdateHandler
         session.SessionKnown += known ? 1 : 0;
         session.SessionUnknown += known ? 0 : 1;
 
-        var stats = session.CurrentMode == GameMode.Flip ? user.Flip : user.ChooseCorrect;
+        var stats = user.StatsFor(session.CurrentDeckId);
         stats.TotalReviewed += 1;
         stats.TotalKnown += known ? 1 : 0;
         stats.TotalUnknown += known ? 0 : 1;
@@ -282,8 +301,8 @@ public class UpdateHandler
 
         if (session.CurrentMode == GameMode.Flip)
         {
-            var (text, keyboard, image) = UiRenderer.CardFront(user.Language, deck, card, session.SessionShown, session.SessionLimit);
-            await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
+            var (text, keyboard, _) = UiRenderer.CardFront(user.Language, deck, card, session.SessionShown, session.SessionLimit);
+            await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, deck, card.Text, ct);
         }
         else
         {
@@ -292,8 +311,8 @@ public class UpdateHandler
             session.CurrentChoices = choices;
             session.CorrectChoiceIndex = choices.IndexOf(card.Explanation);
 
-            var (text, keyboard, image) = UiRenderer.ChooseCorrectQuestion(user.Language, deck, card, choices, session.SessionShown, session.SessionLimit);
-            await EditPhotoAsync(bot, chatId, messageId, text, keyboard, image, ct);
+            var (text, keyboard, _) = UiRenderer.ChooseCorrectQuestion(user.Language, deck, card, choices, session.SessionShown, session.SessionLimit);
+            await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, deck, card.Text, ct);
         }
     }
 
@@ -345,6 +364,26 @@ public class UpdateHandler
     {
         await using var stream = System.IO.File.OpenRead(Path.Combine(_imagesDir, imageFile));
         var media = new InputMediaPhoto(InputFile.FromStream(stream, imageFile))
+        {
+            Caption = caption,
+            ParseMode = ParseMode.Html
+        };
+        await bot.EditMessageMediaAsync(
+            chatId: chatId,
+            messageId: messageId,
+            media: media,
+            replyMarkup: keyboard,
+            cancellationToken: ct);
+    }
+
+    // Same as EditPhotoAsync, but for a card's badge with its text baked in -
+    // composed on the fly instead of read from a static file.
+    private async Task EditCardPhotoAsync(ITelegramBotClient bot, long chatId, int messageId,
+        string caption, InlineKeyboardMarkup keyboard, DeckDefinition deck, string cardText, CancellationToken ct)
+    {
+        var imageBytes = _imageComposer.Compose(Path.Combine(_imagesDir, deck.ImageFile), cardText);
+        using var stream = new MemoryStream(imageBytes);
+        var media = new InputMediaPhoto(InputFile.FromStream(stream, "card.png"))
         {
             Caption = caption,
             ParseMode = ParseMode.Html

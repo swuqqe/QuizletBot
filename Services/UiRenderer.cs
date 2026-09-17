@@ -49,19 +49,28 @@ public static class UiRenderer
         return (Strings.ChooseDeckTitle(l), keyboard, ScreenImages.DeckPicker);
     }
 
-    public static (string text, InlineKeyboardMarkup keyboard, string image) ChooseCount(Language l, DeckDefinition deck)
+    public static (string text, InlineKeyboardMarkup keyboard, string image) ChooseCount(Language l, DeckDefinition deck, int selectedCount)
     {
         var countButtons = SessionSizes
-            .Select(n => InlineKeyboardButton.WithCallbackData(n.ToString(), $"fc:count:{n}"))
+            .Select(n => InlineKeyboardButton.WithCallbackData(
+                n == selectedCount ? $"✅ {n}" : n.ToString(), $"fc:setcount:{n}"))
             .ToArray();
 
-        var keyboard = new InlineKeyboardMarkup(new[]
-        {
-            countButtons,
-            new[] { InlineKeyboardButton.WithCallbackData(Strings.BtnBack(l), "nav:main") }
-        });
+        var rows = new List<InlineKeyboardButton[]> { countButtons };
 
-        return (Strings.ChooseCountTitle(l), keyboard, deck.ImageFile);
+        if (selectedCount > 0)
+        {
+            rows.Add(new[] { InlineKeyboardButton.WithCallbackData(Strings.BtnStart(l), "fc:start") });
+        }
+
+        rows.Add(new[] { InlineKeyboardButton.WithCallbackData(Strings.BtnBack(l), "nav:main") });
+
+        var title = Strings.ChooseCountTitle(l);
+        var text = selectedCount > 0
+            ? $"{title}\n\n{Strings.ChooseCountSelected(l, selectedCount)}"
+            : title;
+
+        return (text, new InlineKeyboardMarkup(rows), deck.ImageFile);
     }
 
     // ---------- Flip mode ----------
@@ -105,7 +114,7 @@ public static class UiRenderer
         Language l, DeckDefinition deck, Phraseologism card, List<string> choices, int shown, int limit)
     {
         var text = $"{Strings.SessionProgress(l, shown, limit)}\n\n" +
-                    $"{deck.FrontLabel(l)}\n\n<i>{Escape(card.Text)}</i>";
+                    $"{deck.QuizPrompt(l)}\n\n\u201c<b>{Escape(card.Text)}</b>\u201d";
 
         var numberEmoji = new[] { "1️⃣", "2️⃣", "3️⃣" };
         var rows = choices.Select((choice, i) => new[]
@@ -122,7 +131,7 @@ public static class UiRenderer
     {
         var text = $"{Strings.SessionProgress(l, shown, limit)}\n\n" +
                     $"{Strings.ChooseCorrectResultTitle(l, wasCorrect)}\n\n" +
-                    $"{deck.FrontLabel(l)}\n<i>{Escape(card.Text)}</i>\n\n" +
+                    $"{deck.QuizPrompt(l)}\n\u201c<b>{Escape(card.Text)}</b>\u201d\n\n" +
                     $"{Strings.ChooseCorrectAnswerReveal(l, Escape(card.Explanation))}";
 
         var keyboard = new InlineKeyboardMarkup(new[]
@@ -153,11 +162,15 @@ public static class UiRenderer
 
     public static (string text, InlineKeyboardMarkup keyboard, string image) Stats(Language l, UserData data)
     {
-        var combined = data.Flip.TotalReviewed + data.ChooseCorrect.TotalReviewed;
-        var flip = Strings.StatsModeSection(l, Strings.StatsModeNameFlip(l), data.Flip.TotalReviewed, data.Flip.TotalKnown, data.Flip.TotalUnknown);
-        var choose = Strings.StatsModeSection(l, Strings.StatsModeNameChoose(l), data.ChooseCorrect.TotalReviewed, data.ChooseCorrect.TotalKnown, data.ChooseCorrect.TotalUnknown);
+        var sections = Decks.All.Select(deck =>
+        {
+            var s = data.StatsFor(deck.Id);
+            return Strings.StatsModeSection(l, $"{deck.Emoji} {deck.Name(l)}", s.TotalReviewed, s.TotalKnown, s.TotalUnknown);
+        });
 
-        var text = $"{Strings.StatsTitle(l)}\n\n{Strings.StatsCombinedTotal(l, combined)}\n\n{flip}\n\n{choose}";
+        var combined = Decks.All.Sum(deck => data.StatsFor(deck.Id).TotalReviewed);
+
+        var text = $"{Strings.StatsTitle(l)}\n\n{Strings.StatsCombinedTotal(l, combined)}\n\n{string.Join("\n\n", sections)}";
         return (text, NavRow(l), ScreenImages.Stats);
     }
 
