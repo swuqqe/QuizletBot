@@ -225,7 +225,7 @@ public class UpdateHandler
                 var card = RepoFor(session).GetById(session.CurrentCardId);
                 session.IsFlipped = true;
                 var (text, keyboard, _) = UiRenderer.CardBack(user.Language, deck, card, session.SessionShown, session.SessionLimit);
-                await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, card.Text, ct);
+                await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, card.Explanation, CardStyle.Answer, ct);
                 break;
             }
 
@@ -256,7 +256,8 @@ public class UpdateHandler
                 var deck = Decks.Get(session.CurrentDeckId);
                 var card = RepoFor(session).GetById(session.CurrentCardId);
                 var (text, keyboard, _) = UiRenderer.ChooseCorrectResult(user.Language, deck, card, wasCorrect, session.SessionShown, session.SessionLimit);
-                await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, card.Text, ct);
+                var resultStyle = wasCorrect ? CardStyle.Correct : CardStyle.Incorrect;
+                await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, card.Explanation, resultStyle, ct);
                 break;
             }
 
@@ -302,7 +303,7 @@ public class UpdateHandler
         if (session.CurrentMode == GameMode.Flip)
         {
             var (text, keyboard, _) = UiRenderer.CardFront(user.Language, deck, card, session.SessionShown, session.SessionLimit);
-            await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, card.Text, ct);
+            await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, card.Text, CardStyle.Question, ct);
         }
         else
         {
@@ -312,7 +313,7 @@ public class UpdateHandler
             session.CorrectChoiceIndex = choices.IndexOf(card.Explanation);
 
             var (text, keyboard, _) = UiRenderer.ChooseCorrectQuestion(user.Language, deck, card, choices, session.SessionShown, session.SessionLimit);
-            await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, card.Text, ct);
+            await EditCardPhotoAsync(bot, chatId, messageId, text, keyboard, card.Text, CardStyle.Question, ct);
         }
     }
 
@@ -377,11 +378,12 @@ public class UpdateHandler
     }
 
     // Same as EditPhotoAsync, but renders the card's text as the full image -
-    // composed on the fly instead of read from a static file.
+    // composed on the fly instead of read from a static file. The style picks
+    // the color + corner marker, so the picture visibly changes on flip/reveal.
     private async Task EditCardPhotoAsync(ITelegramBotClient bot, long chatId, int messageId,
-        string caption, InlineKeyboardMarkup keyboard, string cardText, CancellationToken ct)
+        string caption, InlineKeyboardMarkup keyboard, string cardText, CardStyle style, CancellationToken ct)
     {
-        var imageBytes = _imageComposer.Compose(cardText);
+        var imageBytes = _imageComposer.Compose(cardText, style);
         using var stream = new MemoryStream(imageBytes);
         var media = new InputMediaPhoto(InputFile.FromStream(stream, "card.png"))
         {
