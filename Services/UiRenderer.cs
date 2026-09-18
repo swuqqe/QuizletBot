@@ -70,7 +70,7 @@ public static class UiRenderer
             ? $"{title}\n\n{Strings.ChooseCountSelected(l, selectedCount)}"
             : title;
 
-        return (text, new InlineKeyboardMarkup(rows), deck.ImageFile);
+        return (text, new InlineKeyboardMarkup(rows), ScreenImages.ChooseCount);
     }
 
     // ---------- Flip mode ----------
@@ -155,7 +155,13 @@ public static class UiRenderer
             new[] { InlineKeyboardButton.WithCallbackData(Strings.BtnMainMenu(l), "nav:main") }
         });
 
-        return (text, keyboard, ScreenImages.SessionEnd);
+        var total = known + unknown;
+        var errorRate = total > 0 ? (double)unknown / total : 0;
+        var image = errorRate <= 0.25 ? ScreenImages.SessionEndGood
+            : errorRate < 0.75 ? ScreenImages.SessionEndOk
+            : ScreenImages.SessionEndBad;
+
+        return (text, keyboard, image);
     }
 
     // ---------- Statistics ----------
